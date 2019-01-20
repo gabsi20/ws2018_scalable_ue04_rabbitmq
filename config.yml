@@ -5,3 +5,13 @@ pipes:
       - addAsteriks
       - addDashes
       - removeVovel
+  - name: testPipe2
+    filters:
+      - removeVovel
+      - addDashes
+      - addAsteriks
+  - name: testPipe3
+    filters:
+      - addDashes
+      - addDashes
+      - addDashes

@@ -23,6 +23,9 @@ export default class Filter {
       if (message) {
         const processed = this.toCall(message.content.toString());
         this.emit(processed);
+        setTimeout(() => {
+          this.connection.close()
+        }, 2000)
       }
     }, { noAck: true })
   }

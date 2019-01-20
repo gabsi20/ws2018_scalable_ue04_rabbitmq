@@ -12,34 +12,50 @@ export default class Pipe {
     try {
       this.connection = await amqp.connect("amqp://localhost");
       this.channel = await this.connection.createChannel();
-      this.channel.assertExchange(this.name, "direct", { passive: false });
+      await this.channel.assertExchange(this.name, "direct", { passive: false });
     } catch (e) {
       console.log(e);
     }
-    this.channel.assertQueue("final", { durable: true });
-    this.channel.bindQueue("final", this.name, "final");
+    await this.createQueues();
+    await this.createFilters();
+  }
+
+  createFilters() {
     this.filterFunctions.forEach((filterFunction, idx) => {
-      this.channel.assertQueue(`filter${idx}`, { durable: true });
-      this.channel.bindQueue(`filter${idx}`, this.name, `filter${idx}`);
       const filter = new Filter({
-        input: `filter${idx}`,
+        input: `${this.name}-filter${idx}`,
         toCall: filterFunction,
         output:
           idx + 1 === this.filterFunctions.length
-            ? "final"
-            : `filter${idx + 1}`,
+            ? `${this.name}-final`
+            : `${this.name}-filter${idx + 1}`,
         exchange: this.name
       });
       filter.run();
     });
   }
 
+  createQueues(){
+    const promises = [];
+    promises.push(this.channel.assertQueue(`${this.name}-final`, { durable: true }));
+    promises.push(this.channel.bindQueue(`${this.name}-final`, this.name, `${this.name}-final`));
+      this.filterFunctions.forEach((_filterFunction, idx) => {
+        promises.push(this.channel.assertQueue(`${this.name}-filter${idx}`, { durable: true }));
+        promises.push(this.channel.bindQueue(`${this.name}-filter${idx}`, this.name, `${this.name}-filter${idx}`));
+    });
+    return Promise.all(promises);
+  }
+
   receive() {
     this.channel.consume(
-      "final",
+      `${this.name}-final`,
       message => {
         if (message) {
-          console.log(message.content.toString());
+          console.log(`\n${this.name} returned: \n${message.content.toString()}\n\n`);
+
+          setTimeout(() => {
+            this.connection.close()
+          }, 2000)
         }
       },
       { noAck: true }
@@ -48,7 +64,8 @@ export default class Pipe {
 
   async start(input) {
     await this.setup();
-    this.channel.publish(this.name, "filter0", Buffer.from(input));
+
+    this.channel.publish(this.name, `${this.name}-filter0`, Buffer.from(input));
     this.receive();
   }
 }
