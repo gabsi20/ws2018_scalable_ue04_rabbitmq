@@ -12,7 +12,7 @@ export default class Pipe {
     try {
       this.connection = await amqp.connect("amqp://localhost");
       this.channel = await this.connection.createChannel();
-      await this.channel.assertExchange(this.name, "direct", { passive: false });
+      await this.channel.assertExchange(this.name, "direct", { durable: true });
     } catch (e) {
       console.log(e);
     }
@@ -65,7 +65,7 @@ export default class Pipe {
   async start(input) {
     await this.setup();
 
-    this.channel.publish(this.name, `${this.name}-filter0`, Buffer.from(input));
+    this.channel.publish(this.name, `${this.name}-filter0`, Buffer.from(input), { persistent: true });
     this.receive();
   }
 }

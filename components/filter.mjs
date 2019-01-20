@@ -31,6 +31,6 @@ export default class Filter {
   }
 
   emit(message){
-    this.channel.publish(this.exchange, this.output, Buffer.from(message), { noAck: true });
+    this.channel.publish(this.exchange, this.output, Buffer.from(message), { persistent: true });
   }
 }
