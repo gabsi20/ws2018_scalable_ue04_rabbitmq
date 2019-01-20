@@ -1,0 +1,24 @@
+{
+  "name": "ue04_rabbitmq_pipes_n_filters",
+  "version": "1.0.0",
+  "description": "",
+  "main": "cons.js",
+  "dependencies": {
+    "amqplib": "^0.5.3",
+    "js-yaml": "^3.12.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node --experimental-modules index.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/gabsi20/ws2018_swa_04rabbitmq.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/gabsi20/ws2018_swa_04rabbitmq/issues"
+  },
+  "homepage": "https://gitlab.com/gabsi20/ws2018_swa_04rabbitmq#readme"
+}
